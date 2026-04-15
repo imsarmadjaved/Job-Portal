@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faRocket,
@@ -20,6 +21,8 @@ import {
   faTwitter as faTwitterBrand,
   faGithub as faGithubBrand,
 } from "@fortawesome/free-brands-svg-icons";
+import HeroSection from "./components/common/HeroSection";
+import StatsCard from "./components/common/StatsCard";
 
 // Import data from data folder
 import jobsData from "../../data/Job";
@@ -66,33 +69,6 @@ function About() {
     animateCount(satisfactionRate, "satisfaction");
   }, [totalJobs, totalCompanies]);
 
-  const stats = [
-    {
-      number: counts.jobs.toLocaleString(),
-      label: "Jobs Posted",
-      icon: faBriefcase,
-      suffix: "+",
-    },
-    {
-      number: counts.companies,
-      label: "Companies",
-      icon: faBuilding,
-      suffix: "+",
-    },
-    {
-      number: counts.seekers.toLocaleString(),
-      label: "Job Seekers",
-      icon: faUsers,
-      suffix: "+",
-    },
-    {
-      number: counts.satisfaction,
-      label: "Satisfaction Rate",
-      icon: faChartLine,
-      suffix: "%",
-    },
-  ];
-
   // Map icon names to actual icons
   const getIcon = (iconName) => {
     const icons = {
@@ -106,65 +82,62 @@ function About() {
       trophy: faTrophy,
       star: faStar,
       "arrow-trend-up": faArrowTrendUp,
+      briefcase: faBriefcase,
     };
     return icons[iconName] || faRocket;
   };
 
   return (
-    <div className="min-h-screen bg-secondary-50">
-      {/* Hero Section with Animated Background */}
-      <div className="relative bg-gradient-to-r from-primary-600 via-primary-700 to-primary-800 text-white overflow-hidden">
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute top-0 left-0 w-96 h-96 bg-white rounded-full blur-3xl animate-pulse-slow" />
-          <div className="absolute bottom-0 right-0 w-96 h-96 bg-white rounded-full blur-3xl animate-pulse-slow animation-delay-2000" />
-        </div>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 md:py-28 relative z-10">
-          <div className="text-center max-w-4xl mx-auto">
-            <div className="animate-fadeInUp">
-              <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold mb-6 bg-gradient-to-r from-white to-primary-200 bg-clip-text text-transparent">
-                Connecting Talent with Opportunity
-              </h1>
-              <p className="text-xl md:text-2xl text-primary-100 mb-8 leading-relaxed">
-                We're on a mission to transform the way people find jobs and
-                companies find talent. Since 2020, we've helped thousands of
-                professionals find their dream careers.
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
+    <div className="min-h-screen bg-gradient-to-br from-secondary-50 via-white to-primary-50">
+      {/* Hero Section using reusable component */}
+      <HeroSection
+        title="Connecting Talent with"
+        highlightedWord="Opportunity"
+        subtitle="We're on a mission to transform the way people find jobs and companies find talent. Since 2020, we've helped thousands of professionals find their dream careers."
+        badgeText="Your Career Partner"
+        badgeIcon={faHandshake}
+        stats={[
+          { value: `${counts.jobs.toLocaleString()}+`, label: "Jobs Posted" },
+          { value: `${counts.companies}+`, label: "Companies" },
+          {
+            value: `${counts.seekers.toLocaleString()}+`,
+            label: "Job Seekers",
+          },
+        ]}
+        showSearch={false}
+      />
 
-      {/* Stats Section with Animated Counters */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-20">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8">
-          {stats.map((stat, index) => (
-            <div
-              key={index}
-              className="group text-center p-6 bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 cursor-pointer"
-            >
-              <div className="w-14 h-14 bg-gradient-to-br from-primary-100 to-primary-200 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
-                <FontAwesomeIcon
-                  icon={stat.icon}
-                  className="text-primary-600 text-2xl"
-                />
-              </div>
-              <div className="text-3xl md:text-4xl font-bold text-secondary-900 mb-1">
-                {stat.number}
-                {stat.suffix}
-              </div>
-              <div className="text-sm text-secondary-500 group-hover:text-primary-600 transition-colors">
-                {stat.label}
-              </div>
-            </div>
-          ))}
+      {/* Stats Section with StatsCard component */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+          <StatsCard
+            icon={faBriefcase}
+            value={`${counts.jobs.toLocaleString()}+`}
+            label="Jobs Posted"
+          />
+          <StatsCard
+            icon={faBuilding}
+            value={`${counts.companies}+`}
+            label="Companies"
+          />
+          <StatsCard
+            icon={faUsers}
+            value={`${counts.seekers.toLocaleString()}+`}
+            label="Job Seekers"
+          />
+          <StatsCard
+            icon={faChartLine}
+            value={`${counts.satisfaction}%`}
+            label="Satisfaction Rate"
+          />
         </div>
       </div>
 
       {/* Mission & Vision Cards */}
       <div className="bg-white py-16 md:py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div className="group bg-gradient-to-br from-primary-50 to-primary-100 rounded-2xl p-8 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="group bg-gradient-to-br from-primary-50 to-primary-100 rounded-2xl p-8 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 animate-slide-up">
               <div className="w-20 h-20 bg-white rounded-2xl flex items-center justify-center mb-6 shadow-md group-hover:scale-110 transition-transform">
                 <FontAwesomeIcon
                   icon={faRocket}
@@ -180,7 +153,7 @@ function About() {
                 deserves to do work they love.
               </p>
             </div>
-            <div className="group bg-gradient-to-br from-accent-50 to-accent-100 rounded-2xl p-8 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2">
+            <div className="group bg-gradient-to-br from-accent-50 to-accent-100 rounded-2xl p-8 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 animate-slide-up animation-delay-200">
               <div className="w-20 h-20 bg-white rounded-2xl flex items-center justify-center mb-6 shadow-md group-hover:scale-110 transition-transform">
                 <FontAwesomeIcon
                   icon={faGlobe}
@@ -214,7 +187,8 @@ function About() {
           {valuesData.map((value, index) => (
             <div
               key={index}
-              className={`group bg-gradient-to-br ${value.color} rounded-2xl p-6 text-white hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 cursor-pointer`}
+              className={`group bg-gradient-to-br ${value.color} rounded-2xl p-6 text-white hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 cursor-pointer animate-slide-up`}
+              style={{ animationDelay: `${index * 100}ms` }}
             >
               <div className="w-14 h-14 bg-white/20 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
                 <FontAwesomeIcon
@@ -232,7 +206,7 @@ function About() {
       </div>
 
       {/* Achievements Section */}
-      <div className="bg-gradient-to-r from-primary-600 to-accent-600 py-16 md:py-20">
+      <div className="bg-gradient-to-r from-primary-600 to-primary-800 py-16 md:py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
@@ -246,7 +220,8 @@ function About() {
             {achievementsData.map((achievement, index) => (
               <div
                 key={index}
-                className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 text-center hover:bg-white/20 transition-all duration-300 transform hover:-translate-y-2"
+                className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 text-center hover:bg-white/20 transition-all duration-300 transform hover:-translate-y-2 animate-slide-up"
+                style={{ animationDelay: `${index * 100}ms` }}
               >
                 <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
                   <FontAwesomeIcon
@@ -266,7 +241,7 @@ function About() {
         </div>
       </div>
 
-      {/* Journey Timeline - Modern Design */}
+      {/* Journey Timeline */}
       <div className="bg-white py-16 md:py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
@@ -283,7 +258,8 @@ function About() {
               {milestonesData.map((milestone, index) => (
                 <div
                   key={index}
-                  className={`flex flex-col md:flex-row items-center ${index % 2 === 0 ? "md:flex-row" : "md:flex-row-reverse"}`}
+                  className={`flex flex-col md:flex-row items-center ${index % 2 === 0 ? "md:flex-row" : "md:flex-row-reverse"} animate-slide-up`}
+                  style={{ animationDelay: `${index * 150}ms` }}
                 >
                   <div className="flex-1 hidden md:block"></div>
                   <div className="relative flex items-center justify-center w-16 h-16 bg-white rounded-full z-10 shadow-xl border-4 border-primary-500 mx-4">
@@ -310,7 +286,7 @@ function About() {
         </div>
       </div>
 
-      {/* Team Section with Social Links */}
+      {/* Team Section */}
       <div className="bg-gradient-to-br from-secondary-100 to-secondary-200 py-16 md:py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
@@ -321,11 +297,12 @@ function About() {
               The passionate people behind JobPortal
             </p>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {teamData.map((member, index) => (
               <div
                 key={index}
-                className="group bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden"
+                className="group bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden animate-slide-up"
+                style={{ animationDelay: `${index * 100}ms` }}
               >
                 <div className="relative h-48 bg-gradient-to-br from-primary-400 to-primary-600">
                   <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-all"></div>
@@ -336,7 +313,7 @@ function About() {
                           href={member.social.linkedin}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center hover:bg-white/30 transition-all"
+                          className="w-8 h-8 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-white/30 transition-all"
                         >
                           <FontAwesomeIcon
                             icon={faLinkedinBrand}
@@ -349,7 +326,7 @@ function About() {
                           href={member.social.twitter}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center hover:bg-white/30 transition-all"
+                          className="w-8 h-8 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-white/30 transition-all"
                         >
                           <FontAwesomeIcon
                             icon={faTwitterBrand}
@@ -362,7 +339,7 @@ function About() {
                           href={member.social.github}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center hover:bg-white/30 transition-all"
+                          className="w-8 h-8 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-white/30 transition-all"
                         >
                           <FontAwesomeIcon
                             icon={faGithubBrand}
@@ -399,11 +376,12 @@ function About() {
               Don't just take our word for it
             </p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {testimonialsData.map((testimonial, index) => (
               <div
                 key={index}
-                className="bg-gradient-to-br from-secondary-50 to-secondary-100 rounded-2xl p-6 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
+                className="bg-gradient-to-br from-secondary-50 to-secondary-100 rounded-2xl p-6 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 animate-slide-up"
+                style={{ animationDelay: `${index * 100}ms` }}
               >
                 <FontAwesomeIcon
                   icon={faQuoteLeft}
@@ -431,31 +409,37 @@ function About() {
         </div>
       </div>
 
-      {/* Call to Action with Animation */}
+      {/* Call to Action */}
       <div className="bg-gradient-to-r from-primary-600 via-primary-700 to-primary-800 text-white py-16 md:py-20 relative overflow-hidden">
         <div className="absolute inset-0 opacity-10">
-          <div className="absolute top-0 left-0 w-96 h-96 bg-white rounded-full blur-3xl animate-pulse-slow" />
-          <div className="absolute bottom-0 right-0 w-96 h-96 bg-white rounded-full blur-3xl animate-pulse-slow animation-delay-2000" />
+          <div className="absolute top-0 left-0 w-96 h-96 bg-white rounded-full blur-3xl animate-blob" />
+          <div className="absolute bottom-0 right-0 w-96 h-96 bg-white rounded-full blur-3xl animate-blob animation-delay-2000" />
         </div>
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">
+          <h2 className="text-3xl md:text-4xl font-bold mb-4 animate-slide-up">
             Ready to Start Your Journey?
           </h2>
-          <p className="text-xl text-primary-100 mb-8">
+          <p className="text-xl text-primary-100 mb-8 animate-slide-up animation-delay-200">
             Join thousands of professionals who found their dream jobs through
             JobPortal
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <button className="group bg-white text-primary-600 px-8 py-3 rounded-lg font-semibold hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+          <div className="flex flex-col sm:flex-row gap-4 justify-center animate-slide-up animation-delay-400">
+            <Link
+              to="/jobs"
+              className="group bg-white text-primary-600 px-8 py-3 rounded-xl font-semibold hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 inline-flex items-center justify-center"
+            >
               Find Your Dream Job
               <FontAwesomeIcon
                 icon={faArrowRight}
                 className="ml-2 group-hover:translate-x-1 transition-transform"
               />
-            </button>
-            <button className="border-2 border-white text-white px-8 py-3 rounded-lg font-semibold hover:bg-white/10 transition-all duration-300 transform hover:-translate-y-1">
+            </Link>
+            <Link
+              to="/auth?mode=register"
+              className="border-2 border-white text-white px-8 py-3 rounded-xl font-semibold hover:bg-white/10 transition-all duration-300 transform hover:-translate-y-1 inline-flex items-center justify-center"
+            >
               Post a Job
-            </button>
+            </Link>
           </div>
         </div>
       </div>

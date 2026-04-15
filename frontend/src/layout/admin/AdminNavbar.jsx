@@ -53,20 +53,6 @@ function AdminNavbar({
             <FontAwesomeIcon icon={faBars} className="text-lg" />
           </button>
 
-          {/* Desktop Collapse/Expand Button */}
-          {!isMobile && (
-            <button
-              onClick={toggleDesktopSidebar}
-              className="hidden lg:flex items-center text-secondary-500 hover:text-primary-600 p-2 rounded-lg hover:bg-secondary-100 transition-all"
-              title={sidebarCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
-            >
-              <FontAwesomeIcon
-                icon={sidebarCollapsed ? faChevronRight : faChevronLeft}
-                className="text-sm"
-              />
-            </button>
-          )}
-
           {/* Welcome Text */}
           <div className="hidden sm:block">
             <h2 className="text-base lg:text-lg font-semibold text-secondary-800">

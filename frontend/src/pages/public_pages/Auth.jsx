@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faEnvelope,
@@ -200,12 +200,12 @@ function Auth() {
                       Remember me
                     </span>
                   </label>
-                  <a
-                    href="#"
+                  <Link
+                    to="/forgot-password"
                     className="text-sm text-primary-600 hover:text-primary-700 font-medium"
                   >
                     Forgot Password?
-                  </a>
+                  </Link>
                 </div>
 
                 <button

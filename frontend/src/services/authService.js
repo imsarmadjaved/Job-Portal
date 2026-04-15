@@ -190,6 +190,35 @@ export const uploadProfileImage = async (file) => {
         throw error.response?.data || { message: 'Failed to upload profile image' };
     }
 };
+// Forgot password - Request reset link
+export const forgotPassword = async (email) => {
+    try {
+        const response = await api.post('/auth/forgot-password', { email });
+        return response.data;
+    } catch (error) {
+        throw error.response?.data || { message: 'Failed to send reset email' };
+    }
+};
+
+// Verify reset token
+export const verifyResetToken = async (token) => {
+    try {
+        const response = await api.get(`/auth/verify-reset-token/${token}`);
+        return response.data;
+    } catch (error) {
+        throw error.response?.data || { message: 'Invalid or expired token' };
+    }
+};
+
+// Reset password
+export const resetPassword = async (token, newPassword) => {
+    try {
+        const response = await api.post('/auth/reset-password', { token, newPassword });
+        return response.data;
+    } catch (error) {
+        throw error.response?.data || { message: 'Failed to reset password' };
+    }
+};
 
 // Get user role helpers
 export const getUserRole = () => {
@@ -206,3 +235,4 @@ export const isBlocked = () => {
     const user = getStoredUser();
     return user?.status === 'blocked';
 };
+

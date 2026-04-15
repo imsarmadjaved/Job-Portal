@@ -11,7 +11,10 @@ import {
     getSavedJobs,
     uploadResumeFile,
     deleteResume,
-    uploadProfileImageFile
+    uploadProfileImageFile,
+    forgotPassword,
+    verifyResetToken,
+    resetPassword
 } from '../controllers/authController.js';
 import { protect } from '../middleware/authMiddleware.js';
 import { uploadResume, uploadProfileImage, handleMulterError } from '../middleware/upload.js';
@@ -32,5 +35,10 @@ router.get('/saved-jobs', protect, getSavedJobs);
 router.post('/upload-resume', protect, uploadResume, handleMulterError, uploadResumeFile);
 router.delete('/delete-resume', protect, deleteResume);
 router.post('/upload-profile-image', protect, uploadProfileImage, handleMulterError, uploadProfileImageFile);
+
+// password reset
+router.post('/forgot-password', forgotPassword);
+router.get('/verify-reset-token/:token', verifyResetToken);
+router.post('/reset-password', resetPassword);
 
 export default router;

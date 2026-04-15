@@ -1,7 +1,12 @@
 import jwt from 'jsonwebtoken';
+import crypto from 'crypto';
+import nodemailer from 'nodemailer';
 import User from '../models/user.js';
 import Job from '../models/job.js';
 import { cloudinary } from '../config/cloudinary.js';
+
+console.log('Email User:', process.env.EMAIL_USER);
+console.log('Email Pass:', process.env.EMAIL_PASS ? 'Set' : 'Not Set');
 
 // Generate JWT Token
 const generateToken = (id) => {
@@ -9,6 +14,15 @@ const generateToken = (id) => {
         expiresIn: process.env.JWT_EXPIRE
     });
 };
+
+// configure email transporter
+const transporter = nodemailer.createTransport({
+    service: 'gmail', // or use 'hotmail', 'yahoo', etc.
+    auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS
+    }
+});
 
 export const register = async (req, res) => {
     try {
@@ -506,6 +520,218 @@ export const uploadProfileImageFile = async (req, res) => {
         res.status(500).json({
             success: false,
             message: 'Failed to upload profile image'
+        });
+    }
+};
+
+// @desc    Forgot password - send reset link to email
+// @route   POST /api/auth/forgot-password
+// @access  Public
+export const forgotPassword = async (req, res) => {
+    try {
+        const { email } = req.body;
+
+        if (!email) {
+            return res.status(400).json({
+                success: false,
+                message: 'Please provide an email address'
+            });
+        }
+
+        // Find user by email
+        const user = await User.findOne({ email });
+
+        // For security, always return success even if user doesn't exist
+        if (!user) {
+            return res.status(200).json({
+                success: true,
+                message: 'If your email is registered, you will receive a password reset link'
+            });
+        }
+
+        // Generate reset token
+        const resetToken = crypto.randomBytes(32).toString('hex');
+
+        // Hash token and save to database (optional but more secure)
+        // For simplicity, we'll store the plain token
+        user.resetPasswordToken = resetToken;
+        user.resetPasswordExpire = Date.now() + 3600000; // 1 hour from now
+        await user.save();
+
+        // Create reset URL
+        const resetUrl = `${process.env.FRONTEND_URL}/reset-password?token=${resetToken}`;
+
+        // Email HTML content
+        const emailHtml = `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+                <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
+                    <h1 style="color: white; margin: 0;">Reset Your Password</h1>
+                </div>
+                <div style="background: #f8f9fa; padding: 30px; border-radius: 0 0 10px 10px;">
+                    <p style="font-size: 16px; color: #333;">Hello ${user.name},</p>
+                    <p style="font-size: 16px; color: #333;">You requested to reset your password. Click the button below to create a new password:</p>
+                    <div style="text-align: center; margin: 30px 0;">
+                        <a href="${resetUrl}" 
+                           style="background-color: #667eea; 
+                                  color: white; 
+                                  padding: 12px 30px; 
+                                  text-decoration: none; 
+                                  border-radius: 5px;
+                                  display: inline-block;
+                                  font-weight: bold;">
+                            Reset Password
+                        </a>
+                    </div>
+                    <p style="font-size: 14px; color: #666;">Or copy this link to your browser:</p>
+                    <p style="font-size: 14px; color: #667eea; word-break: break-all;">${resetUrl}</p>
+                    <p style="font-size: 14px; color: #666; margin-top: 20px;">This link will expire in <strong>1 hour</strong>.</p>
+                    <p style="font-size: 14px; color: #666;">If you didn't request this, please ignore this email.</p>
+                    <hr style="margin: 30px 0; border: none; border-top: 1px solid #e0e0e0;">
+                    <p style="font-size: 12px; color: #999; text-align: center;">JobPortal Team</p>
+                </div>
+            </div>
+        `;
+
+        // Send email
+        await transporter.sendMail({
+            from: `"JobPortal" <${process.env.EMAIL_USER}>`,
+            to: user.email,
+            subject: 'Password Reset Request',
+            html: emailHtml
+        });
+
+        res.status(200).json({
+            success: true,
+            message: 'Password reset link sent to your email'
+        });
+
+    } catch (error) {
+        console.error('Forgot password error:', error);
+
+        // If email fails, clear the token
+        if (error) {
+            try {
+                await User.findOneAndUpdate(
+                    { email: req.body.email },
+                    { $unset: { resetPasswordToken: 1, resetPasswordExpire: 1 } }
+                );
+            } catch (err) {
+                console.error('Error clearing token:', err);
+            }
+        }
+
+        res.status(500).json({
+            success: false,
+            message: 'Error sending reset email. Please try again later.'
+        });
+    }
+};
+
+// @desc    Verify reset token
+// @route   GET /api/auth/verify-reset-token/:token
+// @access  Public
+export const verifyResetToken = async (req, res) => {
+    try {
+        const { token } = req.params;
+
+        const user = await User.findOne({
+            resetPasswordToken: token,
+            resetPasswordExpire: { $gt: Date.now() }
+        });
+
+        if (!user) {
+            return res.status(400).json({
+                success: false,
+                message: 'Invalid or expired reset token'
+            });
+        }
+
+        res.status(200).json({
+            success: true,
+            message: 'Token is valid'
+        });
+
+    } catch (error) {
+        console.error('Verify token error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error verifying token'
+        });
+    }
+};
+
+// @desc    Reset password
+// @route   POST /api/auth/reset-password
+// @access  Public
+export const resetPassword = async (req, res) => {
+    try {
+        const { token, newPassword } = req.body;
+
+        if (!token || !newPassword) {
+            return res.status(400).json({
+                success: false,
+                message: 'Please provide token and new password'
+            });
+        }
+
+        if (newPassword.length < 6) {
+            return res.status(400).json({
+                success: false,
+                message: 'Password must be at least 6 characters'
+            });
+        }
+
+        // Find user with valid token
+        const user = await User.findOne({
+            resetPasswordToken: token,
+            resetPasswordExpire: { $gt: Date.now() }
+        });
+
+        if (!user) {
+            return res.status(400).json({
+                success: false,
+                message: 'Invalid or expired reset token'
+            });
+        }
+
+        // Update password
+        user.password = newPassword;
+        user.resetPasswordToken = undefined;
+        user.resetPasswordExpire = undefined;
+        await user.save();
+
+        // Optional: Send confirmation email
+        try {
+            await transporter.sendMail({
+                from: `"JobPortal" <${process.env.EMAIL_USER}>`,
+                to: user.email,
+                subject: 'Password Changed Successfully',
+                html: `
+                    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+                        <h2 style="color: #4F46E5;">Password Changed</h2>
+                        <p>Hello ${user.name},</p>
+                        <p>Your password has been successfully changed.</p>
+                        <p>If you did not make this change, please contact support immediately.</p>
+                        <hr>
+                        <p style="color: #666; font-size: 12px;">JobPortal Team</p>
+                    </div>
+                `
+            });
+        } catch (emailError) {
+            console.log('Could not send confirmation email:', emailError);
+            // Don't fail the request if confirmation email fails
+        }
+
+        res.status(200).json({
+            success: true,
+            message: 'Password reset successful! Please login with your new password.'
+        });
+
+    } catch (error) {
+        console.error('Reset password error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error resetting password'
         });
     }
 };
