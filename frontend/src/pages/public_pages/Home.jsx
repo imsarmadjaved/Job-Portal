@@ -11,6 +11,13 @@ import {
   faStar,
   faArrowRight,
   faArrowLeft,
+  faMapMarkerAlt,
+  faDollarSign,
+  faAward,
+  faCode,
+  faGift,
+  faGraduationCap,
+  faClock,
   faHeart,
   faFilter,
 } from "@fortawesome/free-solid-svg-icons";
@@ -611,6 +618,9 @@ function Home() {
 function JobDetailContent({ job, isSaved, onSave, onApply, companyLogo }) {
   const jobId = job._id || job.id;
 
+  // Helper to check if array has items
+  const hasItems = (arr) => arr && Array.isArray(arr) && arr.length > 0;
+
   return (
     <>
       <div className="flex items-start justify-between mb-4 md:mb-6">
@@ -638,16 +648,20 @@ function JobDetailContent({ job, isSaved, onSave, onApply, companyLogo }) {
             </p>
             <div className="flex flex-wrap gap-2 md:gap-3 mt-2 text-xs md:text-sm text-secondary-500">
               <span className="flex items-center gap-1 bg-secondary-100 px-2 py-1 rounded-full">
-                <FontAwesomeIcon icon={faBuilding} />
+                <FontAwesomeIcon icon={faMapMarkerAlt} />
                 {job.location}
               </span>
               <span className="flex items-center gap-1 bg-secondary-100 px-2 py-1 rounded-full">
-                <FontAwesomeIcon icon={faBriefcase} />
+                <FontAwesomeIcon icon={faDollarSign} />
                 {job.salary}
               </span>
               <span className="flex items-center gap-1 bg-secondary-100 px-2 py-1 rounded-full">
                 <FontAwesomeIcon icon={faBriefcase} />
                 {job.type}
+              </span>
+              <span className="flex items-center gap-1 bg-secondary-100 px-2 py-1 rounded-full">
+                <FontAwesomeIcon icon={faAward} />
+                {job.experience}
               </span>
             </div>
           </div>
@@ -671,23 +685,100 @@ function JobDetailContent({ job, isSaved, onSave, onApply, companyLogo }) {
       </button>
 
       <div className="space-y-4">
+        {/* Description */}
         <div>
-          <h3 className="font-semibold text-secondary-900 mb-2">Description</h3>
-          <p className="text-secondary-600">{job.description}</p>
+          <h3 className="font-semibold text-secondary-900 mb-2 text-lg">
+            Description
+          </h3>
+          <p className="text-secondary-600 leading-relaxed whitespace-pre-line">
+            {job.description}
+          </p>
         </div>
 
-        {job.requirements && (
+        {/* Requirements */}
+        {hasItems(job.requirements) && (
           <div>
-            <h3 className="font-semibold text-secondary-900 mb-2">
+            <h3 className="font-semibold text-secondary-900 mb-2 text-lg">
               Requirements
             </h3>
-            <ul className="list-disc list-inside text-secondary-600">
-              {job.requirements.map((req, i) => (
-                <li key={i}>{req}</li>
+            <ul className="space-y-2">
+              {job.requirements.map((req, idx) => (
+                <li
+                  key={idx}
+                  className="flex items-start gap-2 text-secondary-600"
+                >
+                  <FontAwesomeIcon
+                    icon={faCheckCircle}
+                    className="text-primary-500 text-xs mt-1"
+                  />
+                  <span>{req}</span>
+                </li>
               ))}
             </ul>
           </div>
         )}
+
+        {/* Skills Required - NEW */}
+        {hasItems(job.skills) && (
+          <div>
+            <h3 className="font-semibold text-secondary-900 mb-2 text-lg flex items-center gap-2">
+              <FontAwesomeIcon icon={faCode} className="text-primary-500" />
+              Skills Required
+            </h3>
+            <div className="flex flex-wrap gap-2">
+              {job.skills.map((skill, idx) => (
+                <span
+                  key={idx}
+                  className="bg-gradient-to-r from-secondary-100 to-secondary-50 text-secondary-700 px-3 py-1.5 rounded-full text-sm font-medium border border-secondary-200"
+                >
+                  {skill}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Benefits - NEW */}
+        {hasItems(job.benefits) && (
+          <div>
+            <h3 className="font-semibold text-secondary-900 mb-2 text-lg flex items-center gap-2">
+              <FontAwesomeIcon icon={faGift} className="text-green-500" />
+              Benefits & Perks
+            </h3>
+            <div className="flex flex-wrap gap-2">
+              {job.benefits.map((benefit, idx) => (
+                <span
+                  key={idx}
+                  className="bg-gradient-to-r from-green-50 to-green-100 text-green-700 px-3 py-1.5 rounded-full text-sm font-medium border border-green-200"
+                >
+                  {benefit}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Education */}
+        {job.education && (
+          <div>
+            <h3 className="font-semibold text-secondary-900 mb-2 text-lg flex items-center gap-2">
+              <FontAwesomeIcon
+                icon={faGraduationCap}
+                className="text-purple-500"
+              />
+              Education
+            </h3>
+            <p className="text-secondary-600">{job.education}</p>
+          </div>
+        )}
+
+        {/* Posted Date */}
+        <div className="pt-4 border-t border-secondary-200">
+          <div className="flex items-center gap-2 text-sm text-secondary-500">
+            <FontAwesomeIcon icon={faClock} />
+            <span>Posted: {new Date(job.createdAt).toLocaleDateString()}</span>
+          </div>
+        </div>
       </div>
     </>
   );

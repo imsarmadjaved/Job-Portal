@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faTimes,
@@ -10,6 +10,9 @@ import {
   faHeart,
   faGraduationCap,
   faAward,
+  faCode,
+  faGift,
+  faCheckCircle,
 } from "@fortawesome/free-solid-svg-icons";
 
 function JobDetailModal({
@@ -22,6 +25,13 @@ function JobDetailModal({
 }) {
   const jobId = job._id || job.id;
 
+  // Debug log
+  useEffect(() => {
+    console.log("JobDetailModal - Job data:", job);
+    console.log("JobDetailModal - Skills:", job?.skills);
+    console.log("JobDetailModal - Benefits:", job?.benefits);
+  }, [job]);
+
   const handleSave = (e) => {
     e.stopPropagation();
     onSave(jobId, isSaved);
@@ -30,6 +40,9 @@ function JobDetailModal({
   const handleApply = () => {
     onApply(job);
   };
+
+  // Helper to check if array has items
+  const hasItems = (arr) => arr && Array.isArray(arr) && arr.length > 0;
 
   return (
     <div
@@ -129,7 +142,7 @@ function JobDetailModal({
           </div>
 
           {/* Requirements */}
-          {job.requirements && job.requirements.length > 0 && (
+          {hasItems(job.requirements) && (
             <div className="mb-8">
               <h4 className="font-bold text-secondary-900 mb-3 text-lg">
                 Requirements
@@ -140,7 +153,10 @@ function JobDetailModal({
                     key={idx}
                     className="flex items-start gap-3 text-secondary-600"
                   >
-                    <span className="text-primary-600 mt-1.5 text-sm">•</span>
+                    <FontAwesomeIcon
+                      icon={faCheckCircle}
+                      className="text-primary-500 text-xs mt-1"
+                    />
                     <span>{req}</span>
                   </li>
                 ))}
@@ -148,29 +164,11 @@ function JobDetailModal({
             </div>
           )}
 
-          {/* Benefits */}
-          {job.benefits && job.benefits.length > 0 && (
+          {/* Skills Required - Updated */}
+          {hasItems(job.skills) && (
             <div className="mb-8">
-              <h4 className="font-bold text-secondary-900 mb-3 text-lg">
-                Benefits
-              </h4>
-              <div className="flex flex-wrap gap-2">
-                {job.benefits.map((benefit, idx) => (
-                  <span
-                    key={idx}
-                    className="bg-gradient-to-r from-green-50 to-green-100 text-green-700 px-4 py-2 rounded-full text-sm font-medium border border-green-200"
-                  >
-                    {benefit}
-                  </span>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Skills */}
-          {job.skills && job.skills.length > 0 && (
-            <div className="mb-8">
-              <h4 className="font-bold text-secondary-900 mb-3 text-lg">
+              <h4 className="font-bold text-secondary-900 mb-3 text-lg flex items-center gap-2">
+                <FontAwesomeIcon icon={faCode} className="text-primary-500" />
                 Skills Required
               </h4>
               <div className="flex flex-wrap gap-2">
@@ -180,6 +178,26 @@ function JobDetailModal({
                     className="bg-gradient-to-r from-secondary-100 to-secondary-50 text-secondary-700 px-4 py-2 rounded-full text-sm font-medium border border-secondary-200"
                   >
                     {skill}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Benefits - Updated */}
+          {hasItems(job.benefits) && (
+            <div className="mb-8">
+              <h4 className="font-bold text-secondary-900 mb-3 text-lg flex items-center gap-2">
+                <FontAwesomeIcon icon={faGift} className="text-green-500" />
+                Benefits & Perks
+              </h4>
+              <div className="flex flex-wrap gap-2">
+                {job.benefits.map((benefit, idx) => (
+                  <span
+                    key={idx}
+                    className="bg-gradient-to-r from-green-50 to-green-100 text-green-700 px-4 py-2 rounded-full text-sm font-medium border border-green-200"
+                  >
+                    {benefit}
                   </span>
                 ))}
               </div>
@@ -222,7 +240,7 @@ function JobDetailModal({
             >
               <FontAwesomeIcon
                 icon={faHeart}
-                className={`text-xl ${isSaved ? "text-red-500" : ""}`}
+                className={`text-xl ${isSaved ? "text-red-500" : "text-secondary-400"}`}
               />
             </button>
           </div>

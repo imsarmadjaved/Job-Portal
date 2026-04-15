@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faMapMarkerAlt,
@@ -7,6 +7,8 @@ import {
   faDollarSign,
   faHeart,
   faBuilding,
+  faCode,
+  faGift,
 } from "@fortawesome/free-solid-svg-icons";
 
 function JobCard({
@@ -19,6 +21,13 @@ function JobCard({
   index = 0,
 }) {
   const jobId = job._id || job.id;
+
+  // Debug log to check job data
+  useEffect(() => {
+    console.log("JobCard - Job data:", job);
+    console.log("JobCard - Skills:", job?.skills);
+    console.log("JobCard - Benefits:", job?.benefits);
+  }, [job]);
 
   const handleSave = (e) => {
     e.stopPropagation();
@@ -95,23 +104,59 @@ function JobCard({
             </div>
           </div>
 
-          {job.skills && job.skills.length > 0 && (
-            <div className="flex flex-wrap gap-1.5 mb-4">
-              {job.skills.slice(0, 3).map((skill, idx) => (
-                <span
-                  key={idx}
-                  className="text-xs bg-linear-to-r from-secondary-100 to-secondary-50 text-secondary-700 px-2.5 py-1.5 rounded-full border border-secondary-200"
-                >
-                  {skill}
-                </span>
-              ))}
-              {job.skills.length > 3 && (
-                <span className="text-xs bg-primary-50 text-primary-600 px-2.5 py-1.5 rounded-full border border-primary-200 font-medium">
-                  +{job.skills.length - 3} more
-                </span>
-              )}
-            </div>
-          )}
+          {/* Skills Section - Updated */}
+          {job?.skills &&
+            Array.isArray(job.skills) &&
+            job.skills.length > 0 && (
+              <div className="flex flex-wrap gap-1.5 mb-3">
+                <FontAwesomeIcon
+                  icon={faCode}
+                  className="text-xs text-primary-500 mt-0.5"
+                />
+                <div className="flex flex-wrap gap-1.5">
+                  {job.skills.slice(0, 3).map((skill, idx) => (
+                    <span
+                      key={idx}
+                      className="text-xs bg-linear-to-r from-secondary-100 to-secondary-50 text-secondary-700 px-2.5 py-1.5 rounded-full border border-secondary-200"
+                    >
+                      {skill}
+                    </span>
+                  ))}
+                  {job.skills.length > 3 && (
+                    <span className="text-xs bg-primary-50 text-primary-600 px-2.5 py-1.5 rounded-full border border-primary-200 font-medium">
+                      +{job.skills.length - 3} more
+                    </span>
+                  )}
+                </div>
+              </div>
+            )}
+
+          {/* Benefits Section - New */}
+          {job?.benefits &&
+            Array.isArray(job.benefits) &&
+            job.benefits.length > 0 && (
+              <div className="flex flex-wrap gap-1.5 mb-4">
+                <FontAwesomeIcon
+                  icon={faGift}
+                  className="text-xs text-green-500 mt-0.5"
+                />
+                <div className="flex flex-wrap gap-1.5">
+                  {job.benefits.slice(0, 2).map((benefit, idx) => (
+                    <span
+                      key={idx}
+                      className="text-xs bg-green-50 text-green-600 px-2.5 py-1.5 rounded-full border border-green-200"
+                    >
+                      {benefit}
+                    </span>
+                  ))}
+                  {job.benefits.length > 2 && (
+                    <span className="text-xs bg-green-50 text-green-600 px-2.5 py-1.5 rounded-full border border-green-200">
+                      +{job.benefits.length - 2} more
+                    </span>
+                  )}
+                </div>
+              </div>
+            )}
 
           <div className="flex items-center justify-between pt-4 border-t border-secondary-200">
             <div className="flex items-center gap-1.5 text-sm text-secondary-500">
@@ -136,74 +181,101 @@ function JobCard({
       style={{ animationDelay: `${index * 50}ms` }}
       onClick={onClick}
     >
-      <div className="p-5 flex items-center justify-between group-hover:bg-linear-to-r group-hover:from-primary-50/30 transition-all duration-300">
-        <div className="flex items-center gap-4 flex-1 min-w-0">
-          <div className="w-14 h-14 bg-linear-to-br from-primary-100 to-primary-200 rounded-xl flex items-center justify-center overflow-hidden flex-shrink-0 shadow-md">
-            {companyLogo ? (
-              <img
-                src={companyLogo}
-                alt={job.company}
-                className="w-full h-full object-cover"
-              />
-            ) : (
-              <FontAwesomeIcon
-                icon={faBuilding}
-                className="text-primary-500 text-xl"
-              />
-            )}
-          </div>
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-3 mb-1">
-              <h3 className="font-bold text-secondary-900 truncate group-hover:text-primary-600 transition-colors">
-                {job.title}
-              </h3>
-              {job.urgent && (
-                <span className="bg-linear-to-r from-red-100 to-red-50 text-red-600 text-xs px-2.5 py-1 rounded-full font-semibold flex-shrink-0 border border-red-200 animate-pulse-soft">
-                  Urgent
-                </span>
+      <div className="p-5">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4 flex-1 min-w-0">
+            <div className="w-14 h-14 bg-linear-to-br from-primary-100 to-primary-200 rounded-xl flex items-center justify-center overflow-hidden flex-shrink-0 shadow-md">
+              {companyLogo ? (
+                <img
+                  src={companyLogo}
+                  alt={job.company}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <FontAwesomeIcon
+                  icon={faBuilding}
+                  className="text-primary-500 text-xl"
+                />
               )}
             </div>
-            <p className="text-sm text-secondary-600 mb-2 truncate">
-              {job.company}
-            </p>
-            <div className="flex flex-wrap gap-4 text-xs text-secondary-500">
-              <span className="flex items-center gap-1.5">
-                <FontAwesomeIcon
-                  icon={faMapMarkerAlt}
-                  className="w-3.5 h-3.5 text-primary-500"
-                />
-                {job.location}
-              </span>
-              <span className="flex items-center gap-1.5">
-                <FontAwesomeIcon
-                  icon={faDollarSign}
-                  className="w-3.5 h-3.5 text-green-500"
-                />
-                {job.salary}
-              </span>
-              <span className="flex items-center gap-1.5">
-                <FontAwesomeIcon
-                  icon={faBriefcase}
-                  className="w-3.5 h-3.5 text-blue-500"
-                />
-                {job.type}
-              </span>
-              <span className="flex items-center gap-1.5">
-                <FontAwesomeIcon icon={faClock} className="w-3.5 h-3.5" />
-                {new Date(job.createdAt).toLocaleDateString()}
-              </span>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-3 mb-1">
+                <h3 className="font-bold text-secondary-900 truncate group-hover:text-primary-600 transition-colors">
+                  {job.title}
+                </h3>
+                {job.urgent && (
+                  <span className="bg-linear-to-r from-red-100 to-red-50 text-red-600 text-xs px-2.5 py-1 rounded-full font-semibold flex-shrink-0 border border-red-200 animate-pulse-soft">
+                    Urgent
+                  </span>
+                )}
+              </div>
+              <p className="text-sm text-secondary-600 mb-2 truncate">
+                {job.company}
+              </p>
+              <div className="flex flex-wrap gap-4 text-xs text-secondary-500">
+                <span className="flex items-center gap-1.5">
+                  <FontAwesomeIcon
+                    icon={faMapMarkerAlt}
+                    className="w-3.5 h-3.5 text-primary-500"
+                  />
+                  {job.location}
+                </span>
+                <span className="flex items-center gap-1.5">
+                  <FontAwesomeIcon
+                    icon={faDollarSign}
+                    className="w-3.5 h-3.5 text-green-500"
+                  />
+                  {job.salary}
+                </span>
+                <span className="flex items-center gap-1.5">
+                  <FontAwesomeIcon
+                    icon={faBriefcase}
+                    className="w-3.5 h-3.5 text-blue-500"
+                  />
+                  {job.type}
+                </span>
+                <span className="flex items-center gap-1.5">
+                  <FontAwesomeIcon icon={faClock} className="w-3.5 h-3.5" />
+                  {new Date(job.createdAt).toLocaleDateString()}
+                </span>
+              </div>
+
+              {/* Skills in List View */}
+              {job?.skills &&
+                Array.isArray(job.skills) &&
+                job.skills.length > 0 && (
+                  <div className="flex items-center gap-2 mt-2">
+                    <FontAwesomeIcon
+                      icon={faCode}
+                      className="text-xs text-primary-500"
+                    />
+                    <div className="flex flex-wrap gap-1">
+                      {job.skills.slice(0, 3).map((skill, idx) => (
+                        <span key={idx} className="text-xs text-secondary-600">
+                          {skill}
+                          {idx < Math.min(2, job.skills.length - 1) ? "," : ""}
+                        </span>
+                      ))}
+                      {job.skills.length > 3 && (
+                        <span className="text-xs text-primary-500">
+                          +{job.skills.length - 3}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                )}
             </div>
           </div>
+          <button
+            onClick={handleSave}
+            className="ml-4 text-secondary-400 hover:text-red-500 transition-all p-2 hover:scale-110 transform"
+          >
+            <FontAwesomeIcon
+              icon={faHeart}
+              className={`text-xl ${isSaved ? "text-red-500" : ""}`}
+            />
+          </button>
         </div>
-        <button
-          onClick={handleSave}
-          className="ml-4 text-secondary-400 hover:text-red-500 transition-all p-2 hover:scale-110 transform"
-        >
-          <FontAwesomeIcon
-            icon={faHeart}
-            className={`text-xl ${isSaved ? "text-red-500" : ""}`}
-          />
-        </button>
       </div>
     </div>
   );

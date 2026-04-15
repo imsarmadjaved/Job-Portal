@@ -12,6 +12,10 @@ import {
   faDollarSign,
   faBriefcase,
   faFilePdf,
+  faTag,
+  faGift,
+  faCode,
+  faGraduationCap,
 } from "@fortawesome/free-solid-svg-icons";
 import { applyForJob } from "../../../services/applicationService";
 import { uploadResume, getStoredUser } from "../../../services/authService";
@@ -112,7 +116,6 @@ function ApplyModal({ job, onClose, onSuccess }) {
     try {
       let finalResumeUrl = existingResumeUrl;
 
-      // Upload new resume if selected
       if (!useExistingResume && resumeFile) {
         try {
           const uploadResponse = await uploadResume(resumeFile);
@@ -130,9 +133,8 @@ function ApplyModal({ job, onClose, onSuccess }) {
         }
       }
 
-      // ✅ Submit application - Make sure jobId is correct
       const applicationData = {
-        jobId: job._id || job.id, // Handle both _id and id
+        jobId: job._id || job.id,
         coverLetter: coverLetter,
         resume: finalResumeUrl,
       };
@@ -148,12 +150,17 @@ function ApplyModal({ job, onClose, onSuccess }) {
       }
     } catch (error) {
       console.error("Submit error:", error);
-      // ✅ Show the actual error message from backend
       toast.error(error.message || "Failed to submit application");
     } finally {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    console.log("Job data received:", job);
+    console.log("Skills:", job?.skills);
+    console.log("Benefits:", job?.benefits);
+  }, [job]);
 
   const handleViewResume = (url) => window.open(url, "_blank");
 
@@ -183,7 +190,7 @@ function ApplyModal({ job, onClose, onSuccess }) {
         <form onSubmit={handleSubmit} className="p-5">
           {/* Job Summary */}
           <div className="bg-secondary-50 rounded-xl p-4 mb-5">
-            <div className="flex items-center gap-3 mb-2">
+            <div className="flex items-center gap-3 mb-3">
               <div className="w-10 h-10 bg-gradient-to-br from-primary-100 to-primary-200 rounded-lg flex items-center justify-center">
                 <FontAwesomeIcon
                   icon={faBuilding}
@@ -197,6 +204,76 @@ function ApplyModal({ job, onClose, onSuccess }) {
                 <p className="text-sm text-secondary-600">{job?.company}</p>
               </div>
             </div>
+
+            {/* Job Details Grid */}
+            <div className="grid grid-cols-2 gap-3 text-sm">
+              <div className="flex items-center gap-2 text-secondary-600">
+                <FontAwesomeIcon icon={faMapMarkerAlt} className="text-xs" />
+                <span>{job?.location}</span>
+              </div>
+              <div className="flex items-center gap-2 text-secondary-600">
+                <FontAwesomeIcon icon={faDollarSign} className="text-xs" />
+                <span>{job?.salary}</span>
+              </div>
+              <div className="flex items-center gap-2 text-secondary-600">
+                <FontAwesomeIcon icon={faBriefcase} className="text-xs" />
+                <span>{job?.type}</span>
+              </div>
+              <div className="flex items-center gap-2 text-secondary-600">
+                <FontAwesomeIcon icon={faGraduationCap} className="text-xs" />
+                <span>{job?.experience}</span>
+              </div>
+            </div>
+
+            {/* Skills Section */}
+            {job?.skills && job.skills.length > 0 && (
+              <div className="mt-3 pt-3 border-t border-secondary-200">
+                <div className="flex items-center gap-2 mb-2">
+                  <FontAwesomeIcon
+                    icon={faCode}
+                    className="text-primary-500 text-xs"
+                  />
+                  <span className="text-xs font-medium text-secondary-700">
+                    Required Skills:
+                  </span>
+                </div>
+                <div className="flex flex-wrap gap-1.5">
+                  {job.skills.map((skill, index) => (
+                    <span
+                      key={index}
+                      className="px-2 py-0.5 bg-primary-50 text-primary-600 text-xs rounded-full"
+                    >
+                      {skill}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Benefits Section */}
+            {job?.benefits && job.benefits.length > 0 && (
+              <div className="mt-3 pt-3 border-t border-secondary-200">
+                <div className="flex items-center gap-2 mb-2">
+                  <FontAwesomeIcon
+                    icon={faGift}
+                    className="text-green-500 text-xs"
+                  />
+                  <span className="text-xs font-medium text-secondary-700">
+                    Benefits & Perks:
+                  </span>
+                </div>
+                <div className="flex flex-wrap gap-1.5">
+                  {job.benefits.map((benefit, index) => (
+                    <span
+                      key={index}
+                      className="px-2 py-0.5 bg-green-50 text-green-600 text-xs rounded-full"
+                    >
+                      {benefit}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Resume Section */}
@@ -334,7 +411,7 @@ function ApplyModal({ job, onClose, onSuccess }) {
               onChange={(e) => setCoverLetter(e.target.value)}
               rows={4}
               className="w-full px-4 py-3 border border-secondary-200 rounded-xl focus:outline-none focus:border-primary-500 resize-none text-sm"
-              placeholder="Tell the employer why you're a great fit..."
+              placeholder="Tell the employer why you're a great fit for this position..."
               required
             />
           </div>
