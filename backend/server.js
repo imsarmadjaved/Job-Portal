@@ -2,9 +2,9 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import connectDB from './config/db.js';
-import authRoutes from './routes/authRoutes.js';
-import jobRoutes from './routes/jobRoutes.js';
-import applicationRoutes from './routes/applicationRoutes.js';
+import authRoutes from './routes/AuthRoutes.js';
+import jobRoutes from './routes/JobRoutes.js';
+import applicationRoutes from './routes/ApplicationRoutes.js';
 import companyRoutes from './routes/CompanyRoutes.js';
 import admin from "./routes/AdminRoutes.js"
 import analyticsRoutes from './routes/analyticsRoutes.js';
@@ -17,7 +17,10 @@ connectDB();
 const app = express();
 
 // Middleware
-app.use(cors());
+app.use(cors({
+    origin: process.env.FRONTEND_URL || 'http://localhost:5173',
+    credentials: true
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
